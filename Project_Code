@@ -1,0 +1,396 @@
+# Breakout Clone
+# Final project.py
+# Jiashu Li
+# Jerry
+# jli130
+
+from graphics import *
+from random import *  # (RND)
+
+
+# ***********************************Blocks class***********************************************************************
+# Create a class to create blocks and make them to be able to draw and unDraw.
+class Blocks:  # (CLOD)
+    def __init__(self, p1, p2, color):
+        self.Rectangle = Rectangle(p1, p2)
+        self.Rectangle.setFill(color)
+
+    # Return each blocks points to set the condition when to unDraw them.
+    def getPoints(self):
+        x1 = self.Rectangle.getP1().getX()
+        x2 = self.Rectangle.getP2().getX()
+        y1 = self.Rectangle.getP1().getY()
+        y2 = self.Rectangle.getP2().getY()
+        return x1, x2, y1, y2
+
+    def draw(self, Win):
+        self.Rectangle.draw(Win)
+
+    def unDraw(self):
+        self.Rectangle.undraw()
+
+
+# **************************************End of the Class****************************************************************
+
+# Draw the blocks by using random colors and using a loop.
+def blocks(Win):
+    # Create a list of colors that will be randomly choose when drawing the block
+    cList = ['orange', 'purple', 'pink', 'yellow', 'cyan', 'blue', 'lime', 'red']  # (LOOD)
+    p1 = Point(15, 10)
+    p2 = Point(135, 30)
+    x2 = p2.getX()
+    y1 = p1.getY()
+    y2 = p2.getY()
+    # an empty list that will contain all the block class.
+    bList = []  # (LOOD)
+    for k in range(30):
+        r = randrange(0, 8)  # (RND)
+        block = Blocks(p1, p2, cList[r])  # (CLOD)
+        bList.append(block)  # (LOOD)
+        block.draw(Win)
+        x1 = x2 + 10
+        x2 = x1 + 120
+        # Set conditions to make the blocks draw in the next line.
+        if k == 5:
+            y1 += 27
+            y2 += 27
+            x1 = 15
+            x2 = 135
+        elif k == 11:
+            y1 += 27
+            y2 += 27
+            x1 = 15
+            x2 = 135
+        elif k == 17:
+            y1 += 27
+            y2 += 27
+            x1 = 15
+            x2 = 135
+        elif k == 23:
+            y1 += 27
+            y2 += 27
+            x1 = 15
+            x2 = 135
+        p1 = Point(x1, y1)
+        p2 = Point(x2, y2)
+    return bList  # (LOOD)
+
+
+# Create texts to create the home page of the game.
+def start(Win):
+    txt1 = Text(Point(410, 200), 'Welcome to Breakout Clone')
+    txt1.setSize(30)
+    txt1.setStyle('bold')
+    txt1.draw(Win)
+    b1 = Rectangle(Point(300, 400), Point(500, 450))
+    b1.draw(Win)
+    txt2 = Text(Point(400, 425), 'Click the button to Start')
+    txt2.setSize(13)
+    txt2.draw(Win)
+    # Set conditions for the mouse when to go to the next step.
+    x = Win.getMouse()  # (IMS)
+    while 500 <= x.getX() or x.getX() <= 300:
+        while 450 <= x.getY() or x.getY() <= 400:
+            x = Win.getMouse()  # (IMS)
+    txt1.undraw()
+    b1.undraw()
+    txt2.undraw()
+    # Creates and returns the paddle, ball, list of blocks to make them move and disappear.
+    paddle = Rectangle(Point(310, 550), Point(470, 560))
+    paddle.setFill('black')
+    ball = Circle(Point(390, 540), 10)
+    paddle.draw(Win)
+    ball.draw(Win)
+    List = blocks(Win)  # (LOOD)
+    return paddle, ball, List
+
+
+# Set the condition to tell when the ball and paddle start to move.
+def start2(Win):
+    txt3 = Text(Point(400, 500), 'Press space to start')
+    txt3.draw(Win)
+    Start = Win.getKey()
+    if Start != 'space':
+        while Start != 'space':
+            Start = Win.getKey()
+    txt3.undraw()
+
+
+# Creates and returns 3 lives and score
+def lifeAndScore(Win):
+    scoreboard = Text(Point(30, 580), 'Score: ')
+    scoreboard.draw(Win)
+    Score = Text(Point(70, 582), 0)
+    Score.draw(Win)
+    life = 3
+    life1 = Circle(Point(730, 590), 10)
+    life1.setFill('red')
+    life1.draw(Win)
+    life2 = Circle(Point(760, 590), 10)
+    life2.setFill('red')
+    life2.draw(Win)
+    life3 = Circle(Point(790, 590), 10)
+    life3.setFill('red')
+    life3.draw(Win)
+    return Score, life, life1, life2, life3
+
+
+# Make the paddle to move by using arrow keys.
+# Also sets the condition to restrict the paddle from going off canvas.
+def movePaddle(paddle):
+    x = win.checkKey()
+    if x == 'Left':
+        if paddle.getP1().getX() >= 0:
+            paddle.move(-15, 0)
+    elif x == 'Right':
+        if paddle.getP2().getX() <= 800:
+            paddle.move(15, 0)
+
+
+# Set up the ball's direction and bounce when touch the boundary.
+def Dir1(ball, dirX, dirY):
+    if ball.getCenter().getX() >= 790 or ball.getCenter().getX() <= 10:
+        dirX = -dirX
+    if ball.getCenter().getY() < 10:
+        dirY = -dirY
+    return dirX, dirY
+
+
+def Dir2(ball, paddle, dirX, dirY, List):
+    # Call out the initial direction
+    dirX, dirY = Dir1(ball, dirX, dirY)  # (FNC)
+    # Sets condition when the ball hits the paddle, the direction of the ball will change.
+    if ball.getCenter().getY() + 10 == paddle.getP1().getY() and (
+            paddle.getP1().getX() <= ball.getCenter().getX() < paddle.getCenter().getX()):
+        dirY = -dirY
+        dirX = -1
+    elif ball.getCenter().getY() + 10 == paddle.getP1().getY() and (
+            paddle.getCenter().getX() < ball.getCenter().getX() <= paddle.getP2().getX()):
+        dirX = 1
+        dirY = -dirY
+    elif ball.getCenter().getY() + 10 == paddle.getP1().getY() and paddle.getCenter().getX() == ball.getCenter().getX():
+        dirY = -dirY
+        dirX = 0
+    # Check when the ball hits the block that are still in the list, it changes its direction
+    for item in List:  # (LOOD)
+        x1, x2, y1, y2 = item.getPoints()
+        if x1 <= ball.getCenter().getX() <= x2 and y1 <= ball.getCenter().getY() - 10 <= y2:
+            dirX = -dirX
+            dirY = -dirY
+    return dirX, dirY
+
+
+def remove(List, ball, s, count):
+    # Get the ball's current position.
+    ballX = ball.getCenter().getX()
+    ballY = ball.getCenter().getY()
+    # Check which block in the list the ball hits, unDraw the block and remove the block from the list.
+    # Also, add 100 points to the player, the count of blocks will minus one.
+    for item in List:
+        x1, x2, y1, y2 = item.getPoints()
+        if x1 <= ballX <= x2 and y1 <= ballY - 10 <= y2:
+            item.unDraw()
+            List.remove(item)
+            s += 100
+            count -= 1
+    return s, count
+
+
+def check(life, life1, life2, life3):
+    # Check and unDraw one life once the ball has fall off screen.
+    if life == 2:
+        life1.undraw()
+    elif life == 1:
+        life2.undraw()
+    elif life == 0:
+        life3.undraw()
+
+
+def ballAndPaddle(Win):
+    # Redraw the ball and the paddle, sets it's direction once the ball has go off the screen
+    ball = Circle(Point(390, 540), 10)
+    ball.draw(Win)
+    paddle = Rectangle(Point(310, 550), Point(470, 560))
+    paddle.setFill('black')
+    paddle.draw(Win)
+    # The ball will randomly go left or right.
+    v = randrange(0, 2)  # (RND)
+    if v == 0:
+        dirX = 1.2
+    else:
+        dirX = -1.2
+    dirY = -5
+    return ball, paddle, dirX, dirY
+
+
+def endCheck(life, s, life1, life2, life3):
+    # This checks how many lives have left when the game ends.
+    # Each life will give 100 points to the player, and the life will be unDrawn.
+    if life == 3:
+        s += 300
+        life1.undraw()
+        life2.undraw()
+        life3.undraw()
+    elif life == 2:
+        s += 200
+        life2.undraw()
+        life3.undraw()
+    elif life == 1:
+        s += 100
+        life3.undraw()
+    return s
+
+
+def play():
+    dirX = 1
+    dirY = -5
+    s = 0
+    # There are 30 blocks total so the block count is 30, and score is 0
+    count = 30
+    # Set the condition to True to tell when to end the game.
+    game = True
+    # Get the value for paddle, ball, and the block list.
+    paddle, ball, List = start(win)  # (FNC)
+    start2(win)
+    # Get the value for score and lives.
+    Score, life, life1, life2, life3 = lifeAndScore(win)  # (FNC)
+    while game is not False:
+        # Make the paddle move
+        movePaddle(paddle)
+        # Make the ball move
+        ball.move(dirX, dirY)
+        # Check the new direction for ball
+        dirX, dirY = Dir2(ball, paddle, dirX, dirY, List)  # (FNC)
+        # Check the new score and the block count.
+        s, count = remove(List, ball, s, count)
+        # Update the new score to the score board on the window.
+        Score.setText(s)
+        # Check if lose a life.
+        check(life, life1, life2, life3)
+        # Gives out condition when lose a life, redraw the paddle and ball, reset the direction.
+        if ball.getCenter().getY() + 10 >= 590:
+            life -= 1
+            ball.undraw()
+            paddle.undraw()
+            ball, paddle, dirX, dirY = ballAndPaddle(win)  # (FNC)
+        # When the blocks are all gone or no more life left, the game over.
+        if count == 0 or life < 0:
+            game = False
+        # break up time
+        time.sleep(0.0024)
+    # Clear the window when there are no more life but there are still blocks left
+    for item in List:
+        item.unDraw()
+    paddle.undraw()
+    ball.undraw()
+    # Check if there are any bounce points to the player.
+    s = endCheck(life, s, life1, life2, life3)
+    Score.setText(s)
+    return s
+
+
+def inputBox(Win):
+    # Set instructions to enter the name of the player when the game is over.
+    txt = Text(Point(150, 250), 'Please Enter your name')
+    txt.draw(win)
+    # Create an entry box for the player to enter the name.
+    enter = Entry(Point(150, 300), 10)  # (IEB)
+    enter.draw(win)
+    # Creates a button and
+    button = Rectangle(Point(130, 330), Point(170, 350))
+    button.draw(win)
+    buttonTxt = Text(Point(150, 340), 'Done')
+    buttonTxt.draw(win)
+    # Check if the mouse is clicking the button
+    x = Win.getMouse()
+    while 170 <= x.getX() or x.getX() <= 130:
+        while 350 <= x.getY() or x.getY() <= 330:
+            x = Win.getMouse()
+    # Gives the value of the name
+    Name = enter.getText()  # (OTXT)
+    # If player does not enter anything, it will keep asking player.
+    while Name == '':
+        x = Win.getMouse()
+        while 170 <= x.getX() or x.getX() <= 130:
+            while 350 <= x.getY() or x.getY() <= 330:
+                x = Win.getMouse()
+        Name = enter.getText()
+    # Clear the window
+    enter.undraw()
+    button.undraw()
+    buttonTxt.undraw()
+    txt.undraw()
+    return Name
+
+
+# Create two separate list to sort data.
+def createList():
+    NameList = []
+    NumList = []
+    return NameList, NumList
+
+
+# Add data to the two lists.
+def addData(nameList, scoreList, Name, Score):
+    nameList.append(Name)
+    scoreList.append(Score)
+    return nameList, scoreList
+
+
+def readData(file, nameList, numList):
+    # Open the file
+    infile = open(file, 'r')  # (IFL)
+    for line in infile:
+        List = line.split('\t')
+        # check if the List is empty or not, only append when there are data
+        if List:
+            nameList.append(List[0])
+            numList.append(int(List[1]))
+    return nameList, numList
+
+
+def endText():
+    # Creates end instructions
+    txt4 = Text(Point(400, 100), 'Thank you for playing')
+    txt4.setSize(19)
+    txt4.draw(win)
+    txt5 = Text(Point(400, 550), 'Click to close the window')
+    txt5.setSize(19)
+    txt5.draw(win)
+
+
+def printList(Win):
+    y = 200
+    # Print out the most recent 10 players name and score
+    if len(List1) >= 10:
+        for z in range(10):
+            highList = Text(Point(400, y), List1[z] + '\t' + str(List2[z]))
+            highList.draw(Win)
+            y += 25
+    # If there are less than 10 players, only those players name will be shown.
+    else:
+        for z in range(len(List1)):
+            highList = Text(Point(400, y), List1[z] + '\t' + str(List2[z]))
+            highList.draw(Win)
+            y += 25
+
+
+if __name__ == '__main__':
+    # Create the window
+    win = GraphWin('Breakout Clone', 800, 600)  # (GW)
+    # Set up score and name.
+    score = play()  # (FNC)
+    name = inputBox(win)
+    # Creating lists to add scores and names, and put them into the file.
+    list1, list2 = createList()
+    List1, List2 = addData(list1, list2, name, score)
+    readData('highScoreList.txt', list1, list2)
+    # Open the output file.
+    outfile = open('highScoreList.txt', 'w')  # (OFL)
+    for i in range(len(List1)):
+        # put name and score in the outfile.
+        print(List1[i], '\t', List2[i], file=outfile)   # (OFL)
+    # prints the most recent player's score
+    printList(win)
+    endText()
+    win.getMouse()
